@@ -72,10 +72,13 @@ const translations = {
     profitLossChart: "Profit/Loss",
     deleteInvestment: "Delete Investment",
     confirmDelete: "Are you sure you want to delete this investment?",
+    confirmDeleteData: "Are you sure you want to delete this investment data?",
     yes: "Yes",
     no: "No",
     allInvestments: "All Investments",
     showChart: "Show Chart",
+    investedAmount: "Invested Amount",
+    currentValue: "Current Value",
   },
   es: {
     title: "Seguimiento de Inversiones",
@@ -113,17 +116,21 @@ const translations = {
     profitLossChart: "Ganancia/Pérdida",
     deleteInvestment: "Eliminar Inversión",
     confirmDelete: "¿Estás seguro de que quieres eliminar esta inversión?",
+    confirmDeleteData: "¿Estás seguro de que quieres eliminar estos datos de inversión?",
     yes: "Sí",
     no: "No",
     allInvestments: "Todas las Inversiones",
     showChart: "Mostrar Gráfica",
+    investedAmount: "Cantidad Invertida",
+    currentValue: "Valor Actual",
   },
 }
 
 export default function InvestmentTracker() {
   const [investments, setInvestments] = useState<Investment[]>([
-    { name: "Tech Stocks", color: "hsl(var(--chart-1))" },
-    { name: "Real Estate", color: "hsl(var(--chart-2))" },
+    { name: "SP500", color: "#ffe599" },
+    { name: "SP500 Tech Info", color: "#a4c2f4" },
+    { name: "AI & Big Data", color: "#f9cb9c" },
   ])
 
   const [investmentData, setInvestmentData] = useState<InvestmentData[]>([])
@@ -140,6 +147,7 @@ export default function InvestmentTracker() {
 
   const [editingData, setEditingData] = useState<InvestmentData | null>(null)
   const [deletingInvestment, setDeletingInvestment] = useState<string | null>(null)
+  const [deletingData, setDeletingData] = useState<string | null>(null)
 
   const { setTheme } = useTheme()
 
@@ -148,6 +156,7 @@ export default function InvestmentTracker() {
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+  const [isDeleteDataModalOpen, setIsDeleteDataModalOpen] = useState(false)
 
   const [selectedChart, setSelectedChart] = useState<string | null>(null)
 
@@ -468,15 +477,19 @@ export default function InvestmentTracker() {
                   <TableCell>{calculateTotals.categoryTotals[inv.name].totalShares.toFixed(2)}</TableCell>
                   <TableCell>${calculateTotals.categoryTotals[inv.name].totalValue.toFixed(2)}</TableCell>
                   <TableCell>${calculateTotals.categoryTotals[inv.name].totalInvested.toFixed(2)}</TableCell>
-                  <TableCell>${calculateTotals.categoryTotals[inv.name].profitLoss.toFixed(2)}</TableCell>
+                  <TableCell className={calculateTotals.categoryTotals[inv.name].profitLoss >= 0 ? "text-green-500" : "text-red-500"}>
+                    ${calculateTotals.categoryTotals[inv.name].profitLoss.toFixed(2)}
+                  </TableCell>
                 </TableRow>
               ))}
               <TableRow>
                 <TableCell className="font-bold">{t.grandTotal}</TableCell>
-                <TableCell className="font-bold">{calculateTotals.grandTotalShares.toFixed(2)}</TableCell>
+                <TableCell className="font-bold">{calculateTotals.grandTotalShares}</TableCell>
                 <TableCell className="font-bold">${calculateTotals.grandTotalValue.toFixed(2)}</TableCell>
                 <TableCell className="font-bold">${calculateTotals.grandTotalInvested.toFixed(2)}</TableCell>
-                <TableCell className="font-bold">${calculateTotals.grandTotalProfitLoss.toFixed(2)}</TableCell>
+                <TableCell className={`font-bold ${calculateTotals.grandTotalProfitLoss >= 0 ? "text-green-500" : "text-red-500"}`}>
+                  ${calculateTotals.grandTotalProfitLoss.toFixed(2)}
+                </TableCell>
               </TableRow>
             </TableBody>
           </Table>
@@ -514,7 +527,7 @@ export default function InvestmentTracker() {
                 onChange={(e) => setNewValue(e.target.value)}
                 placeholder={t.investmentValue}
                 required
-                step="0.01"
+                step="10"
               />
               <Input
                 type="number"
@@ -530,7 +543,7 @@ export default function InvestmentTracker() {
                 onChange={(e) => setNewPricePerShare(e.target.value)}
                 placeholder={t.pricePerShare}
                 required
-                step="0.01"
+                step="10"
               />
             </div>
             <Button type="submit">{t.add}</Button>
@@ -538,27 +551,66 @@ export default function InvestmentTracker() {
         </CardContent>
       </Card>
 
-      <Card className="bg-background">
-        <CardHeader>
-          <CardTitle>{t.addNewInvestment}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex space-x-2">
-            <Input
-              value={newInvestmentName}
-              onChange={(e) => setNewInvestmentName(e.target.value)}
-              placeholder={t.investmentName}
-            />
-            <Input
-              type="color"
-              value={newInvestmentColor}
-              onChange={(e) => setNewInvestmentColor(e.target.value)}
-              className="w-12 p-1 h-10"
-            />
-            <Button onClick={addNewInvestment}>{t.add}</Button>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="grid grid-cols-2 gap-4">
+        <Card className="bg-background">
+          <CardHeader>
+            <CardTitle>{t.addNewInvestment}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex space-x-2">
+              <Input
+                value={newInvestmentName}
+                onChange={(e) => setNewInvestmentName(e.target.value)}
+                placeholder={t.investmentName}
+              />
+              <Input
+                type="color"
+                value={newInvestmentColor}
+                onChange={(e) => setNewInvestmentColor(e.target.value)}
+                className="w-12 p-1 h-10"
+              />
+              <Button onClick={addNewInvestment}>{t.add}</Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-background">
+          <CardHeader>
+            <CardTitle>{t.deleteInvestment}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex space-x-2">
+              <Select value={deletingInvestment || ''} onValueChange={setDeletingInvestment}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder={t.selectInvestment} />
+                </SelectTrigger>
+                <SelectContent>
+                  {investments.map((inv) => (
+                    <SelectItem key={inv.name} value={inv.name}>{inv.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Dialog open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
+                <DialogTrigger asChild>
+                  <Button variant="destructive" disabled={!deletingInvestment} onClick={() => setIsDeleteModalOpen(true)}>{t.deleteInvestment}</Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>{t.confirmDelete}</DialogTitle>
+                  </DialogHeader>
+                  <div className="flex justify-end space-x-2">
+                    <Button variant="outline" onClick={() => {
+                      setDeletingInvestment(null)
+                      setIsDeleteModalOpen(false)
+                    }}>{t.no}</Button>
+                    <Button variant="destructive" onClick={() => deletingInvestment && deleteInvestment(deletingInvestment)}>{t.yes}</Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
       <Card className="bg-background">
         <CardHeader>
@@ -592,16 +644,13 @@ export default function InvestmentTracker() {
                             <div className="space-y-2">
                               <h4 className="font-medium leading-none">{inv.name}</h4>
                               <p className="text-sm text-muted-foreground">
-                                {t.shares}: {(data[`${inv.name}_shares`] as number)?.toFixed(2) ?? 'N/A'}
+                                {t.shares}: {(data[`${inv.name}_shares`] as number) ?? 'N/A'}
                               </p>
                               <p className="text-sm text-muted-foreground">
-                                {t.valuePerShare}: ${((data[inv.name] as number) / (data[`${inv.name}_shares`] as number)).toFixed(2)}
+                                {t.totalInvested}: ${(data[`${inv.name}_invested`] as number) ?? 'N/A'}
                               </p>
                               <p className="text-sm text-muted-foreground">
-                                {t.totalInvested}: ${(data[`${inv.name}_invested`] as number)?.toFixed(2) ?? 'N/A'}
-                              </p>
-                              <p className="text-sm text-muted-foreground">
-                                {t.pricePerShare}: ${(data[`${inv.name}_price_per_share`] as number)?.toFixed(2) ?? 'N/A'}
+                                {t.pricePerShare}: ${(data[`${inv.name}_price_per_share`] as number) ?? 'N/A'}
                               </p>
                             </div>
                           </div>
@@ -650,7 +699,7 @@ export default function InvestmentTracker() {
                                         value={editingData[inv.name] as number}
                                         onChange={(e) => setEditingData({...editingData, [inv.name]: parseFloat(e.target.value)})}
                                         className="col-span-3"
-                                        step="0.01"
+                                        step="10"
                                       />
                                     </div>
                                     <div className="grid grid-cols-4 items-center gap-4">
@@ -662,19 +711,6 @@ export default function InvestmentTracker() {
                                         type="number"
                                         value={editingData[`${inv.name}_shares`] as number}
                                         onChange={(e) => setEditingData({...editingData, [`${inv.name}_shares`]: parseFloat(e.target.value)})}
-                                        className="col-span-3"
-                                        step="0.01"
-                                      />
-                                    </div>
-                                    <div className="grid grid-cols-4 items-center gap-4">
-                                      <Label htmlFor={`${inv.name}-invested`} className="text-right">
-                                        {t.totalInvested}
-                                      </Label>
-                                      <Input
-                                        id={`${inv.name}-invested`}
-                                        type="number"
-                                        value={editingData[`${inv.name}_invested`] as number}
-                                        onChange={(e) => setEditingData({...editingData, [`${inv.name}_invested`]: parseFloat(e.target.value)})}
                                         className="col-span-3"
                                         step="0.01"
                                       />
@@ -699,51 +735,33 @@ export default function InvestmentTracker() {
                           </div>
                           <Button onClick={saveEditedData}>{t.saveChanges}</Button>
                         </DialogContent>
+                        </Dialog>
+                        <Dialog open={isDeleteDataModalOpen} onOpenChange={setIsDeleteDataModalOpen}>
+                        <DialogTrigger asChild>
+                          <Button variant="destructive" onClick={() => {
+                            setDeletingData(data.date)
+                            setIsDeleteDataModalOpen(true)
+                          }}>{t.remove}</Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>{t.confirmDeleteData}</DialogTitle>
+                          </DialogHeader>
+                          <div className="flex justify-end space-x-2">
+                            <Button variant="outline" onClick={() => {
+                              setDeletingData(null)
+                              setIsDeleteDataModalOpen(false)
+                            }}>{t.no}</Button>
+                            <Button variant="destructive" onClick={() => deletingData && removeInvestmentData(deletingData)}>{t.yes}</Button>
+                          </div>
+                        </DialogContent>
                       </Dialog>
-                      <Button variant="destructive" onClick={() => removeInvestmentData(data.date)}>{t.remove}</Button>
                     </div>
                   </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
-        </CardContent>
-      </Card>
-
-      <Card className="bg-background">
-        <CardHeader>
-          <CardTitle>{t.deleteInvestment}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex space-x-2">
-            <Select value={deletingInvestment || ''} onValueChange={setDeletingInvestment}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder={t.selectInvestment} />
-              </SelectTrigger>
-              <SelectContent>
-                {investments.map((inv) => (
-                  <SelectItem key={inv.name} value={inv.name}>{inv.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Dialog open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
-              <DialogTrigger asChild>
-                <Button variant="destructive" disabled={!deletingInvestment} onClick={() => setIsDeleteModalOpen(true)}>{t.deleteInvestment}</Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>{t.confirmDelete}</DialogTitle>
-                </DialogHeader>
-                <div className="flex justify-end space-x-2">
-                  <Button variant="outline" onClick={() => {
-                    setDeletingInvestment(null)
-                    setIsDeleteModalOpen(false)
-                  }}>{t.no}</Button>
-                  <Button variant="destructive" onClick={() => deletingInvestment && deleteInvestment(deletingInvestment)}>{t.yes}</Button>
-                </div>
-              </DialogContent>
-            </Dialog>
-          </div>
         </CardContent>
       </Card>
     </div>
