@@ -21,6 +21,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet"
+import { FaInstagram, FaGithub, FaEnvelope } from "react-icons/fa";
 
 interface InvestmentData {
   date: string
@@ -88,6 +89,8 @@ const translations = {
     investedAmount: "Invested Amount",
     currentValue: "Current Value",
     menu: "Menu",
+    contact: "Contact",
+    latestProjects: "Latest Projects"
   },
   es: {
     title: "Seguimiento de Inversiones",
@@ -133,6 +136,8 @@ const translations = {
     investedAmount: "Cantidad Invertida",
     currentValue: "Valor Actual",
     menu: "Menú",
+    contact: "Contacto",
+    latestProjects: "Últimos Proyectos",
   },
 }
 
@@ -629,7 +634,7 @@ export default function InvestmentTracker() {
           </CardHeader>
           <CardContent>
             <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-2">
-              <Select value={deletingInvestment || ''} onValueChange={setDeletingInvestment} className="flex-grow">
+              <Select value={deletingInvestment || ''} onValueChange={setDeletingInvestment}>
                 <SelectTrigger>
                   <SelectValue placeholder={t.selectInvestment} />
                 </SelectTrigger>
@@ -815,7 +820,91 @@ export default function InvestmentTracker() {
           </div>
         </CardContent>
       </Card>
+      <footer className="bg-background border-t">
+  <div className="container px-4 py-8 mx-auto">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      {/* Contact Section */}
+      <div className="space-y-3 text-center md:text-left">
+        <h3 className="text-lg font-semibold">{t.contact}</h3>
+        <div className="flex justify-center md:justify-start space-x-4">
+          <Button variant="ghost" size="icon" asChild>
+            <a
+              href="https://instagram.com/rodriiasecas"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Instagram"
+            >
+              <FaInstagram className="text-xl" />
+            </a>
+          </Button>
+          <Button variant="ghost" size="icon" asChild>
+            <a
+              href="https://github.com/Gechisman"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="GitHub"
+            >
+              <FaGithub className="text-xl" />
+            </a>
+          </Button>
+          <Button variant="ghost" size="icon" asChild>
+            <a
+              href="mailto:rodrigo.pinelpastrana@gmail.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Email"
+            >
+              <FaEnvelope className="text-xl" />
+            </a>
+          </Button>
+        </div>
+      </div>
+
+      {/* Latest Projects Section */}
+      <div className="space-y-3 text-center md:text-left">
+        <h3 className="text-lg font-semibold">{t.latestProjects}</h3>
+        <ul className="space-y-2">
+          <li>
+            <a
+              href="https://mecanodrigo-production.up.railway.app"
+              className="text-muted-foreground hover:text-foreground transition-colors"
+              target="_blank"
+            >
+              Mecanodrigo
+            </a>
+          </li>
+          <li>
+            <a
+              href="https://rodrigo-pinel.vercel.app"
+              className="text-muted-foreground hover:text-foreground transition-colors"
+              target="_blank"
+            >
+              Portfolio
+            </a>
+          </li>
+        </ul>
+      </div>
     </div>
+
+    {/* Footer Bottom Section */}
+    <div className="flex flex-col md:flex-row justify-center md:justify-between items-center space-y-4 my-4 md:my-0 md:space-y-0">
+      <p className="text-sm text-muted-foreground text-center md:text-left">
+        © {new Date().getFullYear()} Rodrigo Piñel.
+      </p>
+      {/* Uncomment if needed */}
+      {/* <div className="flex space-x-4 text-sm text-muted-foreground">
+        <a href="#" className="hover:text-foreground transition-colors">
+          Privacy Policy
+        </a>
+        <a href="#" className="hover:text-foreground transition-colors">
+          Terms of Service
+        </a>
+      </div> */}
+    </div>
+  </div>
+</footer>
+    </div>
+
   )
 }
 
