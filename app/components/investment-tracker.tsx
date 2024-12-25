@@ -422,7 +422,7 @@ export default function InvestmentTracker() {
                           <p className="font-bold">{label}</p>
                           {payload.map((entry, index) => (
                             <p key={index} style={{ color: entry.color }}>
-                              {entry.name}: ${entry.value.toFixed(2)}
+                              {entry.name}: ${Number(entry.value ?? 0).toFixed(2)}
                             </p>
                           ))}
                         </div>
@@ -474,7 +474,7 @@ export default function InvestmentTracker() {
               {investments.map((inv) => (
                 <TableRow key={inv.name}>
                   <TableCell>{inv.name}</TableCell>
-                  <TableCell>{calculateTotals.categoryTotals[inv.name].totalShares.toFixed(2)}</TableCell>
+                  <TableCell>{calculateTotals.categoryTotals[inv.name].totalShares}</TableCell>
                   <TableCell>${calculateTotals.categoryTotals[inv.name].totalValue.toFixed(2)}</TableCell>
                   <TableCell>${calculateTotals.categoryTotals[inv.name].totalInvested.toFixed(2)}</TableCell>
                   <TableCell className={calculateTotals.categoryTotals[inv.name].profitLoss >= 0 ? "text-green-500" : "text-red-500"}>
