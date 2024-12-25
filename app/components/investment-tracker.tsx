@@ -11,8 +11,16 @@ import { ChartContainer, ChartTooltip } from "@/components/ui/chart"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Label } from "@/components/ui/label"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Moon, Sun, GlobeIcon } from 'lucide-react'
+import { Moon, Sun, GlobeIcon, Menu } from 'lucide-react'
 import { useTheme } from "next-themes"
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet"
 
 interface InvestmentData {
   date: string
@@ -79,6 +87,7 @@ const translations = {
     showChart: "Show Chart",
     investedAmount: "Invested Amount",
     currentValue: "Current Value",
+    menu: "Menu",
   },
   es: {
     title: "Seguimiento de Inversiones",
@@ -123,6 +132,7 @@ const translations = {
     showChart: "Mostrar Gráfica",
     investedAmount: "Cantidad Invertida",
     currentValue: "Valor Actual",
+    menu: "Menú",
   },
 }
 
@@ -349,31 +359,67 @@ export default function InvestmentTracker() {
               <CardDescription>{t.description}</CardDescription>
             </div>
             <div className="flex space-x-2">
-            <Select value={language} onValueChange={(value: Language) => setLanguage(value)}>
-                <SelectTrigger className="w-[100px]">
-                  <SelectValue placeholder="Language" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="en">English</SelectItem>
-                  <SelectItem value="es">Español</SelectItem>
-                </SelectContent>
-              </Select>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => setTheme(theme => theme === "dark" ? "light" : "dark")}
-              >
-                <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-                <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-                <span className="sr-only">Toggle theme</span>
-              </Button>
+            <Sheet>
+                <SheetTrigger asChild>
+                  <Button variant="outline" size="icon" className="md:hidden">
+                    <Menu className="h-[1.2rem] w-[1.2rem]" />
+                    <span className="sr-only">{t.menu}</span>
+                  </Button>
+                </SheetTrigger>
+                <SheetContent>
+                  <SheetHeader>
+                    <SheetTitle>{t.menu}</SheetTitle>
+                    <SheetDescription>
+                      <div className="flex flex-col space-y-2">
+                        <Select value={language} onValueChange={(value: Language) => setLanguage(value)}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Language" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="en">English</SelectItem>
+                            <SelectItem value="es">Español</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <Button
+                          variant="outline"
+                          onClick={() => setTheme(theme => theme === "dark" ? "light" : "dark")}
+                        >
+                          <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                          <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                          <span className="sr-only">Toggle theme</span>
+                        </Button>
+                      </div>
+                    </SheetDescription>
+                  </SheetHeader>
+                </SheetContent>
+              </Sheet>
+              <div className="hidden md:flex space-x-2">
+                <Select value={language} onValueChange={(value: Language) => setLanguage(value)}>
+                  <SelectTrigger className="w-[100px]">
+                    <SelectValue placeholder="Language" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="en">English</SelectItem>
+                    <SelectItem value="es">Español</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setTheme(theme => theme === "dark" ? "light" : "dark")}
+                >
+                  <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                  <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                  <span className="sr-only">Toggle theme</span>
+                </Button>
+              </div>
             </div>
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex justify-between items-center">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0">
             <Select value={timeFrame} onValueChange={(value: TimeFrame)=> setTimeFrame(value)}>
-              <SelectTrigger className="w-[180px]">
+              <SelectTrigger className="w-full md:w-[180px]">
                 <SelectValue placeholder={t.timeFrame} />
               </SelectTrigger>
               <SelectContent>
@@ -383,7 +429,7 @@ export default function InvestmentTracker() {
                 <SelectItem value="year">{t.year}</SelectItem>
               </SelectContent>
             </Select>
-            <div className="flex space-x-2">
+            <div className="flex flex-wrap gap-2">
               <Button
                 variant="outline"
                 onClick={() => setSelectedChart(null)}
@@ -407,7 +453,7 @@ export default function InvestmentTracker() {
             config={{
               ...Object.fromEntries(investments.map(inv => [inv.name, { label: inv.name, color: inv.color }])),
             }}
-            className="h-[300px]"
+            className="h-[300px] md:h-[400px]"
           >
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={aggregateData}>
@@ -460,39 +506,41 @@ export default function InvestmentTracker() {
           <CardTitle>{t.investmentTotals}</CardTitle>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>{t.investment}</TableHead>
-                <TableHead>{t.totalShares}</TableHead>
-                <TableHead>{t.totalValue}</TableHead>
-                <TableHead>{t.totalInvested}</TableHead>
-                <TableHead>{t.profitLoss}</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {investments.map((inv) => (
-                <TableRow key={inv.name}>
-                  <TableCell>{inv.name}</TableCell>
-                  <TableCell>{calculateTotals.categoryTotals[inv.name].totalShares}</TableCell>
-                  <TableCell>${calculateTotals.categoryTotals[inv.name].totalValue.toFixed(2)}</TableCell>
-                  <TableCell>${calculateTotals.categoryTotals[inv.name].totalInvested.toFixed(2)}</TableCell>
-                  <TableCell className={calculateTotals.categoryTotals[inv.name].profitLoss >= 0 ? "text-green-500" : "text-red-500"}>
-                    ${calculateTotals.categoryTotals[inv.name].profitLoss.toFixed(2)}
+        <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>{t.investment}</TableHead>
+                  <TableHead>{t.totalShares}</TableHead>
+                  <TableHead>{t.totalValue}</TableHead>
+                  <TableHead>{t.totalInvested}</TableHead>
+                  <TableHead>{t.profitLoss}</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {investments.map((inv) => (
+                  <TableRow key={inv.name}>
+                    <TableCell>{inv.name}</TableCell>
+                    <TableCell>{calculateTotals.categoryTotals[inv.name].totalShares}</TableCell>
+                    <TableCell>${calculateTotals.categoryTotals[inv.name].totalValue.toFixed(2)}</TableCell>
+                    <TableCell>${calculateTotals.categoryTotals[inv.name].totalInvested.toFixed(2)}</TableCell>
+                    <TableCell className={calculateTotals.categoryTotals[inv.name].profitLoss >= 0 ? "text-green-500" : "text-red-500"}>
+                      ${calculateTotals.categoryTotals[inv.name].profitLoss.toFixed(2)}
+                    </TableCell>
+                  </TableRow>
+                ))}
+                <TableRow>
+                  <TableCell className="font-bold">{t.grandTotal}</TableCell>
+                  <TableCell className="font-bold">{calculateTotals.grandTotalShares}</TableCell>
+                  <TableCell className="font-bold">${calculateTotals.grandTotalValue.toFixed(2)}</TableCell>
+                  <TableCell className="font-bold">${calculateTotals.grandTotalInvested.toFixed(2)}</TableCell>
+                  <TableCell className={`font-bold ${calculateTotals.grandTotalProfitLoss >= 0 ? "text-green-500" : "text-red-500"}`}>
+                    ${calculateTotals.grandTotalProfitLoss.toFixed(2)}
                   </TableCell>
                 </TableRow>
-              ))}
-              <TableRow>
-                <TableCell className="font-bold">{t.grandTotal}</TableCell>
-                <TableCell className="font-bold">{calculateTotals.grandTotalShares}</TableCell>
-                <TableCell className="font-bold">${calculateTotals.grandTotalValue.toFixed(2)}</TableCell>
-                <TableCell className="font-bold">${calculateTotals.grandTotalInvested.toFixed(2)}</TableCell>
-                <TableCell className={`font-bold ${calculateTotals.grandTotalProfitLoss >= 0 ? "text-green-500" : "text-red-500"}`}>
-                  ${calculateTotals.grandTotalProfitLoss.toFixed(2)}
-                </TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
+                </TableBody>
+            </Table>
+          </div>
         </CardContent>
       </Card>
 
@@ -502,7 +550,7 @@ export default function InvestmentTracker() {
         </CardHeader>
         <CardContent>
           <form onSubmit={addInvestmentData} className="space-y-4">
-            <div className="flex space-x-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Input
                 type="date"
                 value={newDate}
@@ -510,7 +558,7 @@ export default function InvestmentTracker() {
                 required
               />
               <Select value={newInvestment} onValueChange={setNewInvestment}>
-                <SelectTrigger className="w-[180px]">
+                <SelectTrigger>
                   <SelectValue placeholder={t.selectInvestment} />
                 </SelectTrigger>
                 <SelectContent>
@@ -520,7 +568,7 @@ export default function InvestmentTracker() {
                 </SelectContent>
               </Select>
             </div>
-            <div className="flex space-x-2">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <Input
                 type="number"
                 value={newValue}
@@ -546,30 +594,31 @@ export default function InvestmentTracker() {
                 step="10"
               />
             </div>
-            <Button type="submit">{t.add}</Button>
+            <Button type="submit" className="w-full md:w-auto">{t.add}</Button>
           </form>
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card className="bg-background">
           <CardHeader>
             <CardTitle>{t.addNewInvestment}</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex space-x-2">
+            <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-2">
               <Input
                 value={newInvestmentName}
                 onChange={(e) => setNewInvestmentName(e.target.value)}
                 placeholder={t.investmentName}
+                className="flex-grow"
               />
               <Input
                 type="color"
                 value={newInvestmentColor}
                 onChange={(e) => setNewInvestmentColor(e.target.value)}
-                className="w-12 p-1 h-10"
+                className="w-full md:w-12 p-1 h-10"
               />
-              <Button onClick={addNewInvestment}>{t.add}</Button>
+              <Button onClick={addNewInvestment} className="w-full md:w-auto">{t.add}</Button>
             </div>
           </CardContent>
         </Card>
@@ -579,9 +628,9 @@ export default function InvestmentTracker() {
             <CardTitle>{t.deleteInvestment}</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex space-x-2">
-              <Select value={deletingInvestment || ''} onValueChange={setDeletingInvestment}>
-                <SelectTrigger className="w-[180px]">
+            <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-2">
+              <Select value={deletingInvestment || ''} onValueChange={setDeletingInvestment} className="flex-grow">
+                <SelectTrigger>
                   <SelectValue placeholder={t.selectInvestment} />
                 </SelectTrigger>
                 <SelectContent>
@@ -592,7 +641,7 @@ export default function InvestmentTracker() {
               </Select>
               <Dialog open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
                 <DialogTrigger asChild>
-                  <Button variant="destructive" disabled={!deletingInvestment} onClick={() => setIsDeleteModalOpen(true)}>{t.deleteInvestment}</Button>
+                <Button variant="destructive" disabled={!deletingInvestment} onClick={() => setIsDeleteModalOpen(true)} className="w-full md:w-auto">{t.deleteInvestment}</Button>
                 </DialogTrigger>
                 <DialogContent>
                   <DialogHeader>
@@ -617,151 +666,153 @@ export default function InvestmentTracker() {
           <CardTitle>{t.investmentData}</CardTitle>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>{t.date}</TableHead>
-                {investments.map((inv) => (
-                  <TableHead key={inv.name}>{inv.name}</TableHead>
-                ))}
-                <TableHead>{t.action}</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {investmentData.map((data, index) => (
-                <TableRow key={index}>
-                  <TableCell>{data.date}</TableCell>
+        <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>{t.date}</TableHead>
                   {investments.map((inv) => (
-                    <TableCell key={inv.name}>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button variant="ghost">
-                            ${(data[inv.name] as number)?.toFixed(2) ?? 'N/A'}
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-80">
-                          <div className="grid gap-4">
-                            <div className="space-y-2">
-                              <h4 className="font-medium leading-none">{inv.name}</h4>
-                              <p className="text-sm text-muted-foreground">
-                                {t.shares}: {(data[`${inv.name}_shares`] as number) ?? 'N/A'}
-                              </p>
-                              <p className="text-sm text-muted-foreground">
-                                {t.totalInvested}: ${(data[`${inv.name}_invested`] as number) ?? 'N/A'}
-                              </p>
-                              <p className="text-sm text-muted-foreground">
-                                {t.pricePerShare}: ${(data[`${inv.name}_price_per_share`] as number) ?? 'N/A'}
-                              </p>
-                            </div>
-                          </div>
-                        </PopoverContent>
-                      </Popover>
-                    </TableCell>
+                    <TableHead key={inv.name}>{inv.name}</TableHead>
                   ))}
-                  <TableCell>
-                    <div className="flex space-x-2">
-                      <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-                        <DialogTrigger asChild>
-                          <Button variant="outline" onClick={() => {
-                            editInvestmentData(data)
-                            setIsEditModalOpen(true)
-                          }}>{t.edit}</Button>
-                        </DialogTrigger>
-                        <DialogContent className="sm:max-w-[425px]">
-                          <DialogHeader>
-                            <DialogTitle>{t.editInvestmentData}</DialogTitle>
-                          </DialogHeader>
-                          <div className="grid gap-4 py-4">
-                            {editingData && (
-                              <>
-                                <div className="grid grid-cols-4 items-center gap-4">
-                                  <Label htmlFor="edit-date" className="text-right">
-                                    {t.date}
-                                  </Label>
-                                  <Input
-                                    id="edit-date"
-                                    type="date"
-                                    value={editingData.date}
-                                    onChange={(e) => setEditingData({...editingData, date: e.target.value})}
-                                    className="col-span-3"
-                                  />
-                                </div>
-                                {investments.map((inv) => (
-                                  <div key={inv.name} className="space-y-2">
-                                    <h4 className="font-medium">{inv.name}</h4>
-                                    <div className="grid grid-cols-4 items-center gap-4">
-                                      <Label htmlFor={`${inv.name}-value`} className="text-right">
-                                        {t.investmentValue}
-                                      </Label>
-                                      <Input
-                                        id={`${inv.name}-value`}
-                                        type="number"
-                                        value={editingData[inv.name] as number}
-                                        onChange={(e) => setEditingData({...editingData, [inv.name]: parseFloat(e.target.value)})}
-                                        className="col-span-3"
-                                        step="10"
-                                      />
-                                    </div>
-                                    <div className="grid grid-cols-4 items-center gap-4">
-                                      <Label htmlFor={`${inv.name}-shares`} className="text-right">
-                                        {t.shares}
-                                      </Label>
-                                      <Input
-                                        id={`${inv.name}-shares`}
-                                        type="number"
-                                        value={editingData[`${inv.name}_shares`] as number}
-                                        onChange={(e) => setEditingData({...editingData, [`${inv.name}_shares`]: parseFloat(e.target.value)})}
-                                        className="col-span-3"
-                                        step="0.01"
-                                      />
-                                    </div>
-                                    <div className="grid grid-cols-4 items-center gap-4">
-                                      <Label htmlFor={`${inv.name}-price-per-share`} className="text-right">
-                                        {t.pricePerShare}
-                                      </Label>
-                                      <Input
-                                        id={`${inv.name}-price-per-share`}
-                                        type="number"
-                                        value={editingData[`${inv.name}_price_per_share`] as number}
-                                        onChange={(e) => setEditingData({...editingData, [`${inv.name}_price_per_share`]: parseFloat(e.target.value)})}
-                                        className="col-span-3"
-                                        step="0.01"
-                                      />
-                                    </div>
+                  <TableHead>{t.action}</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {investmentData.map((data, index) => (
+                  <TableRow key={index}>
+                    <TableCell>{data.date}</TableCell>
+                    {investments.map((inv) => (
+                      <TableCell key={inv.name}>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button variant="ghost">
+                              ${(data[inv.name] as number)?.toFixed(2) ?? 'N/A'}
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-80">
+                            <div className="grid gap-4">
+                              <div className="space-y-2">
+                                <h4 className="font-medium leading-none">{inv.name}</h4>
+                                <p className="text-sm text-muted-foreground">
+                                  {t.shares}: {(data[`${inv.name}_shares`] as number) ?? 'N/A'}
+                                </p>
+                                <p className="text-sm text-muted-foreground">
+                                  {t.totalInvested}: {(data[`${inv.name}_invested`] as number) ?? 'N/A'}
+                                </p>
+                                <p className="text-sm text-muted-foreground">
+                                  {t.pricePerShare}: {(data[`${inv.name}_price_per_share`] as number) ?? 'N/A'}
+                                </p>
+                              </div>
+                            </div>
+                            </PopoverContent>
+                        </Popover>
+                      </TableCell>
+                    ))}
+                    <TableCell>
+                      <div className="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2">
+                        <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+                          <DialogTrigger asChild>
+                            <Button variant="outline" onClick={() => {
+                              editInvestmentData(data)
+                              setIsEditModalOpen(true)
+                            }}>{t.edit}</Button>
+                          </DialogTrigger>
+                          <DialogContent className="sm:max-w-[425px]">
+                            <DialogHeader>
+                              <DialogTitle>{t.editInvestmentData}</DialogTitle>
+                            </DialogHeader>
+                            <div className="grid gap-4 py-4">
+                              {editingData && (
+                                <>
+                                  <div className="grid grid-cols-4 items-center gap-4">
+                                    <Label htmlFor="edit-date" className="text-right">
+                                      {t.date}
+                                    </Label>
+                                    <Input
+                                      id="edit-date"
+                                      type="date"
+                                      value={editingData.date}
+                                      onChange={(e) => setEditingData({...editingData, date: e.target.value})}
+                                      className="col-span-3"
+                                    />
                                   </div>
-                                ))}
-                              </>
-                            )}
-                          </div>
-                          <Button onClick={saveEditedData}>{t.saveChanges}</Button>
-                        </DialogContent>
+                                  {investments.map((inv) => (
+                                    <div key={inv.name} className="space-y-2">
+                                      <h4 className="font-medium">{inv.name}</h4>
+                                      <div className="grid grid-cols-4 items-center gap-4">
+                                        <Label htmlFor={`${inv.name}-value`} className="text-right">
+                                          {t.investmentValue}
+                                        </Label>
+                                        <Input
+                                          id={`${inv.name}-value`}
+                                          type="number"
+                                          value={editingData[inv.name] as number}
+                                          onChange={(e) => setEditingData({...editingData, [inv.name]: parseFloat(e.target.value)})}
+                                          className="col-span-3"
+                                          step="0.01"
+                                        />
+                                      </div>
+                                      <div className="grid grid-cols-4 items-center gap-4">
+                                        <Label htmlFor={`${inv.name}-shares`} className="text-right">
+                                          {t.shares}
+                                        </Label>
+                                        <Input
+                                          id={`${inv.name}-shares`}
+                                          type="number"
+                                          value={editingData[`${inv.name}_shares`] as number}
+                                          onChange={(e) => setEditingData({...editingData, [`${inv.name}_shares`]: parseFloat(e.target.value)})}
+                                          className="col-span-3"
+                                          step="0.01"
+                                        />
+                                      </div>
+                                      <div className="grid grid-cols-4 items-center gap-4">
+                                        <Label htmlFor={`${inv.name}-price-per-share`} className="text-right">
+                                          {t.pricePerShare}
+                                        </Label>
+                                        <Input
+                                          id={`${inv.name}-price-per-share`}
+                                          type="number"
+                                          value={editingData[`${inv.name}_price_per_share`] as number}
+                                          onChange={(e) => setEditingData({...editingData, [`${inv.name}_price_per_share`]: parseFloat(e.target.value)})}
+                                          className="col-span-3"
+                                          step="0.01"
+                                        />
+                                      </div>
+                                    </div>
+                                  ))}
+                                </>
+                              )}
+                            </div>
+                            <Button onClick={saveEditedData}>{t.saveChanges}</Button>
+                          </DialogContent>
                         </Dialog>
                         <Dialog open={isDeleteDataModalOpen} onOpenChange={setIsDeleteDataModalOpen}>
-                        <DialogTrigger asChild>
+                          <DialogTrigger asChild>
                           <Button variant="destructive" onClick={() => {
                             setDeletingData(data.date)
                             setIsDeleteDataModalOpen(true)
                           }}>{t.remove}</Button>
-                        </DialogTrigger>
-                        <DialogContent>
-                          <DialogHeader>
-                            <DialogTitle>{t.confirmDeleteData}</DialogTitle>
-                          </DialogHeader>
-                          <div className="flex justify-end space-x-2">
+                          </DialogTrigger>
+                          <DialogContent className="bg-background">
+                            <DialogHeader>
+                              <DialogTitle>{t.confirmDeleteData}</DialogTitle>
+                            </DialogHeader>
+                            <div className="flex justify-end space-x-2">
                             <Button variant="outline" onClick={() => {
                               setDeletingData(null)
                               setIsDeleteDataModalOpen(false)
                             }}>{t.no}</Button>
                             <Button variant="destructive" onClick={() => deletingData && removeInvestmentData(deletingData)}>{t.yes}</Button>
-                          </div>
-                        </DialogContent>
-                      </Dialog>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+                            </div>
+                          </DialogContent>
+                        </Dialog>
+                      </div>
+                    </TableCell>
+                    </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         </CardContent>
       </Card>
     </div>
