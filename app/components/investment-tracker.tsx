@@ -1,17 +1,17 @@
 "use client"
 
 import { useState, useMemo, useEffect } from "react"
-import { Line, LineChart, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts"
+import { Line, LineChart, XAxis, YAxis, CartesianGrid, Legend, ResponsiveContainer } from "recharts"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
+import { ChartContainer, ChartTooltip } from "@/components/ui/chart"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Label } from "@/components/ui/label"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Moon, Sun, GlobeIcon, Flag } from 'lucide-react'
+import { Moon, Sun, GlobeIcon } from 'lucide-react'
 import { useTheme } from "next-themes"
 
 interface InvestmentData {
@@ -241,7 +241,7 @@ export default function InvestmentTracker() {
   const deleteInvestment = (investmentName: string) => {
     setInvestments(investments.filter(inv => inv.name !== investmentName))
     setInvestmentData(investmentData.map(data => {
-      const { [investmentName]: deletedValue, [`${investmentName}_shares`]: deletedShares, [`${investmentName}_invested`]: deletedInvested, [`${investmentName}_price_per_share`]: deletedPricePerShare, ...rest } = data
+      const { ...rest } = data
       return rest as InvestmentData
     }))
     setDeletingInvestment(null)
